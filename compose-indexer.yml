@@ -77,8 +77,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.indexer-service.loadbalancer.server.port=7600"
-      - "traefik.http.routers.indexer-service.entrypoints=websecure"
-      - "traefik.http.routers.indexer-service.tls.certresolver=myresolver"
+      - "traefik.http.routers.indexer-service.entrypoints=web"
+      # - "traefik.http.routers.indexer-service.tls.certresolver=myresolver"
       - "traefik.http.routers.indexer-service.rule=Host(`$INDEX_HOST`)"
 
 
