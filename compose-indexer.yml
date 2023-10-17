@@ -169,7 +169,7 @@ services:
       - "8082"
     ports:
       - "443:443"
-      - "80:80"
+      - "${HTTP_PORT:-80}:80"
     command:
       - "--api=true"
       - "--api.insecure=true"
@@ -178,7 +178,7 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.file.filename=/dynamic_config.yml"
-      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.address=:${HTTP_PORT:-80}"
       - "--entrypoints.websecure.address=:443"
       - "--entryPoints.metrics.address=:8082"
       - "--metrics.prometheus.entryPoint=metrics"
