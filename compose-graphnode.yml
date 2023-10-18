@@ -8,6 +8,8 @@ x-logging:
   driver: local
 
 networks:
+  traefik_proxy:
+    external: true
   monitor-net:
     driver: bridge
 
@@ -17,7 +19,7 @@ volumes:
       driver_opts:
         type: 'none'
         o: 'bind'
-        device: '/mnt/sdd/graph-data/${HTTP_PORT:-80}/postgres_data'
+        device: '/mnt/sdd/graph-data/${VOLUME_ID:-80}/postgres_data'
 
 
 services:
@@ -143,35 +145,35 @@ services:
 ######################################################################################      
 
 
-  traefik:
-    image: traefik:latest
-    # container_name: traefik
-    restart: always
-    expose:
-      - "8082"
-    ports:
-      - "${HTTP_PORT:-80}:80"
-    command:
-      - "--api=true"
-      - "--api.insecure=true"
-      - "--api.dashboard=true"
-      - "--log.level=DEBUG"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--providers.file.filename=/dynamic_config.yml"
-      - "--entrypoints.web.address=:${HTTP_PORT:-80}"
-      - "--entrypoints.websecure.address=:443"
-      - "--entryPoints.metrics.address=:8082"
-      - "--metrics.prometheus.entryPoint=metrics"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      # TESTING
-      - "--certificatesresolvers.myresolver.acme.email=$EMAIL"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-    volumes:
-      - "./traefik/letsencrypt:/letsencrypt"
-      - "./traefik/config/dynamic_config.yml:/dynamic_config.yml"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    networks:
-      - monitor-net
-    labels:
-      - "traefik.enable=true"
+  # traefik:
+  #   image: traefik:latest
+  #   container_name: traefik
+  #   restart: always
+  #   expose:
+  #     - "8082"
+  #   ports:
+  #     - "${HTTP_PORT:-80}:80"
+  #   command:
+  #     - "--api=true"
+  #     - "--api.insecure=true"
+  #     - "--api.dashboard=true"
+  #     - "--log.level=DEBUG"
+  #     - "--providers.docker=true"
+  #     - "--providers.docker.exposedbydefault=false"
+  #     - "--providers.file.filename=/dynamic_config.yml"
+  #     - "--entrypoints.web.address=:${HTTP_PORT:-80}"
+  #     - "--entrypoints.websecure.address=:443"
+  #     - "--entryPoints.metrics.address=:8082"
+  #     - "--metrics.prometheus.entryPoint=metrics"
+  #     - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+  #     # TESTING
+  #     - "--certificatesresolvers.myresolver.acme.email=$EMAIL"
+  #     - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+  #   volumes:
+  #     - "./traefik/letsencrypt:/letsencrypt"
+  #     - "./traefik/config/dynamic_config.yml:/dynamic_config.yml"
+  #     - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  #   networks:
+  #     - monitor-net
+  #   labels:
+  #     - "traefik.enable=true"
