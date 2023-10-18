@@ -175,10 +175,10 @@ services:
       - "org.label-schema.group=monitoring"
       - "traefik.enable=true"
       - "traefik.docker.network=traefik_proxy"
-      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
-      - "traefik.http.routers.grafana.entrypoints=web"
-      # - "traefik.http.routers.grafana.tls.certresolver=myresolver"
-      - "traefik.http.routers.grafana.rule=Host(`$GRAFANA_HOST`)"
+      - "traefik.http.services.graph-grafana-${VOLUME_ID:-80}.loadbalancer.server.port=3000"
+      - "traefik.http.routers.graph-grafana-${VOLUME_ID:-80}.entrypoints=web"
+      # - "traefik.http.routers.graph-grafana-${VOLUME_ID:-80}.tls.certresolver=myresolver"
+      - "traefik.http.routers.graph-grafana-${VOLUME_ID:-80}.rule=Host(`$GRAFANA_HOST`)"
 
 
 ######################################################################################
