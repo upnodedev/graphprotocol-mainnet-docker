@@ -12,7 +12,12 @@ networks:
     driver: bridge
 
 volumes:
-    postgres_data: {}
+    postgres_data:
+      driver: local
+      driver_opts:
+        type: 'none'
+        o: 'bind'
+        device: '/mnt/sdd/graph-data/${HTTP_PORT:-80}/postgres_data'
 
 
 services:
@@ -26,7 +31,7 @@ services:
 
   index-node-0:
     image: ${GRAPH_NODE_VERSION:-graphprotocol/graph-node:v0.32.0}
-    container_name: index-node-0
+    # container_name: index-node-0
     depends_on:
       - postgres
     volumes:
@@ -70,7 +75,7 @@ services:
 
   query-node-0:
     image: ${GRAPH_NODE_VERSION:-graphprotocol/graph-node:v0.32.0}
-    container_name: query-node-0
+    # container_name: query-node-0
     depends_on:
       - postgres
     volumes:
@@ -115,7 +120,7 @@ services:
 
   postgres:
     image: postgres:13.10
-    container_name: postgres
+    # container_name: postgres
     command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements"]
     restart: unless-stopped
     environment:
@@ -140,12 +145,11 @@ services:
 
   traefik:
     image: traefik:latest
-    container_name: traefik
+    # container_name: traefik
     restart: always
     expose:
       - "8082"
     ports:
-      - "443:443"
       - "${HTTP_PORT:-80}:80"
     command:
       - "--api=true"
