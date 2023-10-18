@@ -18,7 +18,7 @@ volumes:
         type: 'none'
         o: 'bind'
         device: '/mnt/sdd/graph-data/${HTTP_PORT:-80}/prometheus_data'
-    grafana_data: {}
+    grafana_data:
       driver: local
       driver_opts:
         type: 'none'
