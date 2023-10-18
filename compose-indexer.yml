@@ -85,10 +85,10 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik_proxy"
-      - "traefik.http.services.indexer-service.loadbalancer.server.port=7600"
-      - "traefik.http.routers.indexer-service.entrypoints=web"
-      # - "traefik.http.routers.indexer-service.tls.certresolver=myresolver"
-      - "traefik.http.routers.indexer-service.rule=Host(`$INDEX_HOST`)"
+      - "traefik.http.services.indexer-service-${VOLUME_ID:-80}.loadbalancer.server.port=7600"
+      - "traefik.http.routers.indexer-service-${VOLUME_ID:-80}.entrypoints=web"
+      # - "traefik.http.routers.indexer-service-${VOLUME_ID:-80}.tls.certresolver=myresolver"
+      - "traefik.http.routers.indexer-service-${VOLUME_ID:-80}.rule=Host(`$INDEX_HOST`)"
 
 
 ######################################################################################
