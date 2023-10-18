@@ -12,8 +12,18 @@ networks:
     driver: bridge
 
 volumes:
-    prometheus_data: {}
+    prometheus_data:
+      driver: local
+      driver_opts:
+        type: 'none'
+        o: 'bind'
+        device: '/mnt/sdd/graph-data/${HTTP_PORT:-80}/prometheus_data'
     grafana_data: {}
+      driver: local
+      driver_opts:
+        type: 'none'
+        o: 'bind'
+        device: '/mnt/sdd/graph-data/${HTTP_PORT:-80}/grafana_data'
 
 
 services:
@@ -27,7 +37,7 @@ services:
 
   prometheus:
     image: prom/prometheus
-    container_name: prometheus
+    # container_name: prometheus
     volumes:
       - ./prometheus:/etc/prometheus
       - prometheus_data:/prometheus
@@ -57,7 +67,7 @@ services:
 
   alertmanager:
     image: prom/alertmanager
-    container_name: alertmanager
+    # container_name: alertmanager
     volumes:
       - ./alertmanager:/etc/alertmanager
     command:
@@ -82,7 +92,7 @@ services:
 
   nodeexporter:
     image: prom/node-exporter
-    container_name: nodeexporter
+    # container_name: nodeexporter
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -111,7 +121,7 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor
-    container_name: cadvisor
+    # container_name: cadvisor
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:rw
@@ -137,7 +147,7 @@ services:
 
   grafana:
     image: grafana/grafana
-    container_name: grafana
+    # container_name: grafana
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
@@ -175,7 +185,7 @@ services:
 
   pushgateway:
     image: prom/pushgateway
-    container_name: pushgateway
+    # container_name: pushgateway
     restart: unless-stopped
     expose:
       - 9091
@@ -193,12 +203,11 @@ services:
 
   traefik:
     image: traefik:latest
-    container_name: traefik
+    # container_name: traefik
     restart: always
     expose:
       - "8082"
     ports:
-      - "443:443"
       - "${HTTP_PORT:-80}:80"
     command:
       - "--api=true"
