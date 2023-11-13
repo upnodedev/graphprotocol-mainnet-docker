@@ -8,11 +8,18 @@ x-logging:
   driver: local
 
 networks:
+  traekik-proxy:
+    external: true
   monitor-net:
     driver: bridge
 
 volumes:
-    postgres2_data: {}
+    postgres2_data:
+      driver: local
+      driver_opts:
+        type: 'none'
+        o: 'bind'
+        device: '/mnt/sdd/graph-data/${VOLUME_ID:-80}/postgres2_data'
 
 
 services:
@@ -66,14 +73,16 @@ services:
       - 7600
     networks:
       - monitor-net
+      - traefik_proxy
     restart: unless-stopped
     logging: *default-logging
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.indexer-service-mainnet.loadbalancer.server.port=7600"
-      - "traefik.http.routers.indexer-service-mainnet.entrypoints=websecure"
-      - "traefik.http.routers.indexer-service-mainnet.tls.certresolver=myresolver"
-      - "traefik.http.routers.indexer-service-mainnet.rule=Host(`$INDEX_HOST_MAINNET`)"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.services.indexer-service-mainnet-${VOLUME_ID:-80}.loadbalancer.server.port=7600"
+      - "traefik.http.routers.indexer-service-mainnet-${VOLUME_ID:-80}.entrypoints=web"
+      #- "traefik.http.routers.indexer-service-mainnet-${VOLUME_ID:-80}.tls.certresolver=myresolver"
+      - "traefik.http.routers.indexer-service-mainnet-${VOLUME_ID:-80}.rule=Host(`$INDEX_HOST_MAINNET`)"
 
 
 ######################################################################################
@@ -105,14 +114,16 @@ services:
       - 7600
     networks:
       - monitor-net
+      - traefik_proxy
     restart: unless-stopped
     logging: *default-logging
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.indexer-service-arbi.loadbalancer.server.port=7600"
-      - "traefik.http.routers.indexer-service-arbi.entrypoints=websecure"
-      - "traefik.http.routers.indexer-service-arbi.tls.certresolver=myresolver"
-      - "traefik.http.routers.indexer-service-arbi.rule=Host(`$INDEX_HOST_ARBI`)"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.services.indexer-service-arbi-${VOLUME_ID:-80}.loadbalancer.server.port=7600"
+      - "traefik.http.routers.indexer-service-arbi-${VOLUME_ID:-80}.entrypoints=web"
+      #- "traefik.http.routers.indexer-service-arbi-${VOLUME_ID:-80}.tls.certresolver=myresolver"
+      - "traefik.http.routers.indexer-service-arbi-${VOLUME_ID:-80}.rule=Host(`$INDEX_HOST_ARBI`)"
 
 
 ######################################################################################
@@ -198,35 +209,35 @@ services:
 ######################################################################################      
 
 
-  traefik:
-    image: traefik:latest
-    container_name: traefik
-    restart: always
-    expose:
-      - "8082"
-    ports:
-      - "443:443"
-      - "80:80"
-    command:
-      - "--api=true"
-      - "--api.insecure=true"
-      - "--api.dashboard=true"
-      - "--log.level=DEBUG"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--providers.file.filename=/dynamic_config.yml"
-      - "--entrypoints.websecure.address=:443"
-      - "--entryPoints.metrics.address=:8082"
-      - "--metrics.prometheus.entryPoint=metrics"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      # TESTING
-      - "--certificatesresolvers.myresolver.acme.email=$EMAIL"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-    volumes:
-      - "./traefik/letsencrypt:/letsencrypt"
-      - "./traefik/config/dynamic_config.yml:/dynamic_config.yml"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    networks:
-      - monitor-net
-    labels:
-      - "traefik.enable=true"
+#  traefik:
+#    image: traefik:latest
+#    container_name: traefik
+#    restart: always
+#    expose:
+#      - "8082"
+#    ports:
+#      - "443:443"
+#      - "80:80"
+#    command:
+#      - "--api=true"
+#      - "--api.insecure=true"
+#      - "--api.dashboard=true"
+#      - "--log.level=DEBUG"
+#      - "--providers.docker=true"
+#      - "--providers.docker.exposedbydefault=false"
+#      - "--providers.file.filename=/dynamic_config.yml"
+#      - "--entrypoints.websecure.address=:443"
+#      - "--entryPoints.metrics.address=:8082"
+#      - "--metrics.prometheus.entryPoint=metrics"
+#      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+#      # TESTING
+#      - "--certificatesresolvers.myresolver.acme.email=$EMAIL"
+#      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+#    volumes:
+#      - "./traefik/letsencrypt:/letsencrypt"
+#      - "./traefik/config/dynamic_config.yml:/dynamic_config.yml"
+#      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+#    networks:
+#      - monitor-net
+#    labels:
+#      - "traefik.enable=true"

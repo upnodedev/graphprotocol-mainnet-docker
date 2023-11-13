@@ -7,6 +7,8 @@ x-logging: &default-logging
   driver: local
 
 networks:
+  traefik_proxy:
+    external: true
   monitor-net:
     driver: bridge
 
@@ -79,47 +81,49 @@ services:
     restart: unless-stopped
     networks:
       - monitor-net
+      = traefik_proxy
     logging: *default-logging
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.indexer-agent-gui.loadbalancer.server.port=3000"
-      - "traefik.http.routers.indexer-agent-gui.entrypoints=websecure"
-      - "traefik.http.routers.indexer-agent-gui.tls.certresolver=myresolver"
-      - "traefik.http.routers.indexer-agent-gui.rule=Host(`$AGENT_GUI_HOST`)"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.services.indexer-agent-gui-${VOLUME_ID:-80}.loadbalancer.server.port=3000"
+      - "traefik.http.routers.indexer-agent-gui-${VOLUME_ID:-80}.entrypoints=web"
+      #- "traefik.http.routers.indexer-agent-gui-${VOLUME_ID:-80}.tls.certresolver=myresolver"
+      - "traefik.http.routers.indexer-agent-gui-${VOLUME_ID:-80}.rule=Host(`$AGENT_GUI_HOST`)"
 
   ######################################################################################
   #####################         TRAEFIK PROXY CONTAINER          #######################
   ######################################################################################
 
-  traefik:
-    image: traefik:latest
-    container_name: traefik
-    restart: always
-    expose:
-      - "8082"
-    ports:
-      - "443:443"
-      - "80:80"
-    command:
-      - "--api=true"
-      - "--api.insecure=true"
-      - "--api.dashboard=true"
-      - "--log.level=DEBUG"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--providers.file.filename=/dynamic_config.yml"
-      - "--entrypoints.websecure.address=:443"
-      - "--entryPoints.metrics.address=:8082"
-      - "--metrics.prometheus.entryPoint=metrics"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      # TESTING
-      - "--certificatesresolvers.myresolver.acme.email=$EMAIL"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-    volumes:
-      - "./traefik/letsencrypt:/letsencrypt"
-      - "./traefik/config/dynamic_config.yml:/dynamic_config.yml"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    networks:
-      - monitor-net
-    labels:
-      - "traefik.enable=true"
+#  traefik:
+#    image: traefik:latest
+#    container_name: traefik
+#    restart: always
+#    expose:
+#      - "8082"
+#    ports:
+#      - "443:443"
+#      - "80:80"
+#    command:
+#      - "--api=true"
+#      - "--api.insecure=true"
+#      - "--api.dashboard=true"
+#      - "--log.level=DEBUG"
+#      - "--providers.docker=true"
+#      - "--providers.docker.exposedbydefault=false"
+#      - "--providers.file.filename=/dynamic_config.yml"
+#      - "--entrypoints.websecure.address=:443"
+#      - "--entryPoints.metrics.address=:8082"
+#      - "--metrics.prometheus.entryPoint=metrics"
+#      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+#      # TESTING
+#      - "--certificatesresolvers.myresolver.acme.email=$EMAIL"
+#      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+#    volumes:
+#      - "./traefik/letsencrypt:/letsencrypt"
+#      - "./traefik/config/dynamic_config.yml:/dynamic_config.yml"
+#      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+#    networks:
+#      - monitor-net
+#    labels:
+#      - "traefik.enable=true"

@@ -8,12 +8,24 @@ x-logging:
   driver: local
 
 networks:
+  traefik_proxy:
+    external: true
   monitor-net:
     driver: bridge
 
 volumes:
-    prometheus_data: {}
-    grafana_data: {}
+    prometheus_data:
+      driver: local
+      driver_opts:
+        type: 'none'
+        o: 'bind'
+        device: '/mnt/sdd/graph-data/${VOLUME_ID:-80}/prometheus_data'
+    grafana_data:
+      driver: local
+      driver_opts:
+        type: 'none'
+        o: 'bind'
+        device: '/mnt/sdd/graph-data/${VOLUME_ID:-80}/grafana_data'
 
 
 services:
@@ -155,15 +167,16 @@ services:
       - 3000
     networks:
       - monitor-net
+      - traefik_proxy
     logging: *default-logging
     labels:
       - "org.label-schema.group=monitoring"
       - "traefik.enable=true"
-      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
-      - "traefik.http.routers.grafana.entrypoints=websecure"
-      - "traefik.http.routers.grafana.tls.certresolver=myresolver"
-      - "traefik.http.routers.grafana.rule=Host(`$GRAFANA_HOST`)"
-
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.services.graph-grafana-${VOLUME_ID:-80}.loadbalancer.server.port=3000"
+      - "traefik.http.routers.graph-grafana-${VOLUME_ID:-80}.entrypoints=web"
+      #- "traefik.http.routers.graph-grafana-${VOLUME_ID:-80}.tls.certresolver=myresolver"
+      - "traefik.http.routers.graph-grafana-${VOLUME_ID:-80}.rule=Host(`$GRAFANA_HOST`)"
 
 ######################################################################################
 #####################          PUSHGATEWAY CONTAINER           #######################
@@ -189,35 +202,35 @@ services:
 ######################################################################################      
 
 
-  traefik:
-    image: traefik:latest
-    container_name: traefik
-    restart: always
-    expose:
-      - "8082"
-    ports:
-      - "443:443"
-      - "80:80"
-    command:
-      - "--api=true"
-      - "--api.insecure=true"
-      - "--api.dashboard=true"
-      - "--log.level=DEBUG"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--providers.file.filename=/dynamic_config.yml"
-      - "--entrypoints.websecure.address=:443"
-      - "--entryPoints.metrics.address=:8082"
-      - "--metrics.prometheus.entryPoint=metrics"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      # TESTING
-      - "--certificatesresolvers.myresolver.acme.email=$EMAIL"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-    volumes:
-      - "./traefik/letsencrypt:/letsencrypt"
-      - "./traefik/config/dynamic_config.yml:/dynamic_config.yml"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    networks:
-      - monitor-net
-    labels:
-      - "traefik.enable=true"
+#  traefik:
+#    image: traefik:latest
+#    container_name: traefik
+#    restart: always
+#    expose:
+#      - "8082"
+#    ports:
+#      - "443:443"
+#      - "80:80"
+#    command:
+#      - "--api=true"
+#      - "--api.insecure=true"
+#      - "--api.dashboard=true"
+#      - "--log.level=DEBUG"
+#      - "--providers.docker=true"
+#      - "--providers.docker.exposedbydefault=false"
+#      - "--providers.file.filename=/dynamic_config.yml"
+#      - "--entrypoints.websecure.address=:443"
+#      - "--entryPoints.metrics.address=:8082"
+#      - "--metrics.prometheus.entryPoint=metrics"
+#      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+#      # TESTING
+#     - "--certificatesresolvers.myresolver.acme.email=$EMAIL"
+#      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+#    volumes:
+#      - "./traefik/letsencrypt:/letsencrypt"
+#      - "./traefik/config/dynamic_config.yml:/dynamic_config.yml"
+#      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+#    networks:
+#      - monitor-net
+#    labels:
+#      - "traefik.enable=true"
