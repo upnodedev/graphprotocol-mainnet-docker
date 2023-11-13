@@ -8,6 +8,8 @@ x-logging:
   driver: local
 
 networks:
+  traefik_proxy:
+    external: true
   monitor-net:
     driver: bridge
 
