@@ -81,7 +81,7 @@ services:
     restart: unless-stopped
     networks:
       - monitor-net
-      = traefik_proxy
+      - traefik_proxy
     logging: *default-logging
     labels:
       - "traefik.enable=true"
