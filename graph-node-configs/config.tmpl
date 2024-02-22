@@ -9,8 +9,8 @@ ingestor = "index_node_0"
 [chains.${CHAIN_0_NAME}]
 shard = "primary"
 provider = [
-  { label = "firehose", details = { type = "firehose", url = "https://eth.firehose.pinax.network:9000", token = "$PINAX_API_KEY" }},
-  { label = "substreams", details = { type = "substreams", url = "https://eth.substreams.pinax.network:9000", token = "$PINAX_API_KEY" }},
+  { label = "firehose", details = { type = "firehose", url = "https://eth.firehose.pinax.network:443", token = "$PINAX_API_KEY" }},
+  { label = "substreams", details = { type = "substreams", url = "https://eth.substreams.pinax.network:443", token = "$PINAX_API_KEY" }},
   { label = "${CHAIN_0_NAME}", url = "${CHAIN_0_RPC}", features = ["archive", "traces"] }
 ]
 
