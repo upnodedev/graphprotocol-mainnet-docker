@@ -31,6 +31,8 @@ services:
   cli:
     build:
       context: ./cli
+      args:
+        INDEXER_AGENT: http://indexer-agent:8000/
     # container_name: cli
     restart: unless-stopped
     environment:
