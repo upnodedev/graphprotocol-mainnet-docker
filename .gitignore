@@ -4,3 +4,4 @@
 .idea/
 .env
 offchain-subgraphs
+compose-agent.yml
