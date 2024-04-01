@@ -1,5 +1,7 @@
 FROM node:16.15-bullseye-slim as build
 
+ARG INDEXER_AGENT
+
 ENV NODE_ENV production
 
 RUN apt-get update && apt-get install -y build-essential bc git curl httpie jq nano wget bsdmainutils base58 netcat net-tools libsecret-1-dev python2.7 clang cmake
@@ -16,7 +18,7 @@ RUN yarn --global --frozen-lockfile --non-interactive --production=false
 RUN ln -s /root/.npm-global/lib/node_modules/@graphprotocol/indexer-cli/packages/indexer-cli/bin/graph-indexer /usr/bin/graph
 
 RUN mkdir -p "/root/.config/graph-cli/"
-RUN echo "api = \"$INDEXER_AGENT\"" >> "/root/.config/graph-cli/indexing.toml"
+RUN echo "api = \"${INDEXER_AGENT}\"" >> "/root/.config/graph-cli/indexing.toml"
 
 RUN echo "export PROMPT_COMMAND='history -a' && export HISTFILE=/history/.bash_history" >> "/root/.bashrc"
 
