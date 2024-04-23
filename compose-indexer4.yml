@@ -1,0 +1,200 @@
+version: '2.1'
+
+x-logging:
+  &default-logging
+  options:
+    max-file: '1'
+    compress: 'false'
+  driver: local
+
+networks:
+  traefik_proxy:
+    external: true
+  monitor-net:
+    driver: bridge
+
+volumes:
+    postgres4_data:
+      driver: local
+      driver_opts:
+        type: 'none'
+        o: 'bind'
+        device: '/mnt/sdd/graph-data/${VOLUME_ID:-80}/postgres4_data'
+
+
+services:
+
+######################################################################################
+#####################            CLI CONTAINER                 #######################
+######################################################################################
+
+  cli-4:
+    build:
+      context: ./cli
+      args:
+        INDEXER_AGENT: http://indexer-agent-4:8000/
+    # container_name: cli
+    restart: unless-stopped
+    environment:
+      GEO_COORDINATES: ${GEO_COORDINATES:-69.42069 69.42069}
+    tty: true
+    networks:
+      - monitor-net
+    logging: *default-logging
+    volumes:
+      - ./cli/scripts:/home/graph/scripts
+      - ./cli/history:/history
+
+
+######################################################################################
+#####################      INDEXER SERVICE CONTAINER ARBI      #######################
+######################################################################################
+
+  indexer-service-4:
+    image: ${INDEXER_SERVICE_VERSION_ARBI:-ghcr.io/graphprotocol/indexer-service:v0.20.22}
+    # container_name: indexer-service-arbi
+    depends_on:
+      - postgres4
+    environment:
+      INDEXER_SERVICE_MNEMONIC: ${OPERATOR_SEED_PHRASE_4}
+      INDEXER_SERVICE_INDEXER_ADDRESS: ${STAKING_WALLET_ADDRESS_4}
+      INDEXER_SERVICE_PORT: 7600
+      INDEXER_SERVICE_ETHEREUM_NETWORK: arbitrum-one
+      INDEXER_SERVICE_ETHEREUM: ${TXN_RPC_ARBI}
+      INDEXER_SERVICE_GRAPH_NODE_QUERY_ENDPOINT: http://query-node-0:8000
+      INDEXER_SERVICE_GRAPH_NODE_STATUS_ENDPOINT: http://index-node-0:8030/graphql
+      INDEXER_SERVICE_NETWORK_SUBGRAPH_ENDPOINT: ${INDEXER_SERVICE_NETWORK_SUBGRAPH_ENDPOINT_ARBI:-https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-arbitrum}
+      INDEXER_SERVICE_NETWORK_SUBGRAPH_DEPLOYMENT: ${NETWORK_SUBGRAPH_DEPLOYMENT_ARBI}
+      INDEXER_SERVICE_POSTGRES_HOST: postgres4
+      INDEXER_SERVICE_POSTGRES_USERNAME: ${DB_USER:-graph-node}
+      INDEXER_SERVICE_POSTGRES_PASSWORD: ${DB_PASS:-db-password}
+      INDEXER_SERVICE_POSTGRES_DATABASE: ${AGENT_DB_NAME:-indexer-agent}
+      INDEXER_SERVICE_CLIENT_SIGNER_ADDRESS: "0xc483960d4D58eabc434Dc88a620AdFd883D6Dd4e"
+    expose:
+      - 7300
+      - 7600
+    networks:
+      - monitor-net
+      - traefik_proxy
+    restart: unless-stopped
+    logging: *default-logging
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.http.services.indexer-service-4-${VOLUME_ID:-80}.loadbalancer.server.port=7600"
+      - "traefik.http.routers.indexer-service-4-${VOLUME_ID:-80}.entrypoints=web"
+      #- "traefik.http.routers.indexer-service-arbi-${VOLUME_ID:-80}.tls.certresolver=myresolver"
+      - "traefik.http.routers.indexer-service-4-${VOLUME_ID:-80}.rule=Host(`$INDEX_HOST_4`)"
+
+
+######################################################################################
+#####################        INDEXER AGENT CONTAINER           #######################
+######################################################################################
+
+  indexer-agent-4:
+    image: ${INDEXER_AGENT_VERSION:-ghcr.io/graphprotocol/indexer-agent:v0.20.22}
+    # container_name: indexer-agent
+    depends_on:
+      - postgres4
+    expose:
+      - 7300
+      - 8000
+      - 8001
+      - 8002
+    environment:
+      INDEXER_AGENT_MULTINETWORK_MODE: false
+      INDEXER_AGENT_MNEMONIC: ${OPERATOR_SEED_PHRASE_4}
+      INDEXER_AGENT_INDEXER_ADDRESS: ${STAKING_WALLET_ADDRESS_4}
+      INDEXER_AGENT_INDEX_NODE_IDS: "index_node_0"
+      INDEXER_AGENT_INJECT_DAI: "true"
+      INDEXER_AGENT_REBATE_CLAIM_THRESHOLD: ${REBATE_CLAIM_THRESHOLD_ARBI:-200}
+      INDEXER_AGENT_REBATE_CLAIM_BATCH_THRESHOLD: ${REBATE_CLAIM_BATCH_THRESHOLD_ARBI:-2000}
+      INDEXER_AGENT_REBATE_CLAIM_MAX_BATCH_SIZE: ${REBATE_CLAIM_MAX_BATCH_SIZE_ARBI:-100}
+      INDEXER_AGENT_VOUCHER_REDEMPTION_THRESHOLD: ${VOUCHER_REDEMPTION_THRESHOLD_ARBI:-200}
+      INDEXER_AGENT_VOUCHER_REDEMPTION_BATCH_THRESHOLD: ${VOUCHER_REDEMPTION_BATCH_THRESHOLD_ARBI:-2000}
+      INDEXER_AGENT_VOUCHER_REDEMPTION_MAX_BATCH_SIZE: ${VOUCHER_REDEMPTION_MAX_BATCH_SIZE_ARBI:-100}
+      INDEXER_AGENT_ETHEREUM_NETWORK: arbitrum-one
+      INDEXER_AGENT_ETHEREUM: ${TXN_RPC_ARBI}
+      INDEXER_AGENT_GRAPH_NODE_QUERY_ENDPOINT: http://query-node-0:8000
+      INDEXER_AGENT_GRAPH_NODE_STATUS_ENDPOINT: http://index-node-0:8030/graphql
+      INDEXER_AGENT_GRAPH_NODE_ADMIN_ENDPOINT: http://index-node-0:8020
+      INDEXER_AGENT_PUBLIC_INDEXER_URL: 'https://${INDEX_HOST_4}/'
+      INDEXER_AGENT_INDEXER_GEO_COORDINATES: ${GEO_COORDINATES:-60.16952 24.93545}
+      INDEXER_AGENT_NETWORK_SUBGRAPH_ENDPOINT: ${INDEXER_AGENT_NETWORK_SUBGRAPH_ENDPOINT_ARBI:-https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-arbitrum}
+      INDEXER_AGENT_NETWORK_SUBGRAPH_DEPLOYMENT: ${NETWORK_SUBGRAPH_DEPLOYMENT}
+      INDEXER_AGENT_EPOCH_SUBGRAPH_ENDPOINT: ${INDEXER_AGENT_EPOCH_SUBGRAPH_ENDPOINT_ARBI:-https://api.thegraph.com/subgraphs/name/graphprotocol/arbitrum-epoch-block-oracle}
+      INDEXER_AGENT_POSTGRES_HOST: ${AGENT_DB_HOST:-postgres4}
+      INDEXER_AGENT_POSTGRES_USERNAME: ${DB_USER:-graph-node}
+      INDEXER_AGENT_POSTGRES_PASSWORD: ${DB_PASS:-db-password}
+      INDEXER_AGENT_POSTGRES_DATABASE: ${AGENT_DB_NAME:-indexer-agent}
+      INDEXER_AGENT_DAI_CONTRACT: "0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844"
+      INDEXER_AGENT_COLLECT_RECEIPTS_ENDPOINT: https://gateway-arbitrum.thegraph.com/collect-receipts
+      INDEXER_AGENT_GAS_PRICE_MAX: ${INDEXER_AGENT_GAS_PRICE_MAX_ARBI:-50}
+      INDEXER_AGENT_ALLOCATION_MANAGEMENT: ${INDEXER_AGENT_ALLOCATION_MANAGEMENT:-auto}
+    networks:
+      - monitor-net
+    restart: unless-stopped
+    logging: *default-logging
+
+
+
+######################################################################################
+#####################       POSTGRES AGENT CONTAINER           #######################
+######################################################################################
+
+
+
+  postgres4:
+    image: postgres:13.6
+    # container_name: postgres2
+    command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-graph-node}
+      POSTGRES_PASSWORD: ${DB_PASS:-db-password}
+      POSTGRES_DB: ${AGENT_DB_NAME:-indexer-agent}
+    volumes:
+      - postgres4_data:/var/lib/postgresql/data
+    networks:
+      - monitor-net
+    expose:
+      - 5432
+    logging: *default-logging
+
+######################################################################################
+#####################         TRAEFIK PROXY CONTAINER          #######################
+######################################################################################      
+
+
+#  traefik:
+#    image: traefik:latest
+#    container_name: traefik
+#    restart: always
+#    expose:
+#      - "8082"
+#    ports:
+#      - "443:443"
+#      - "80:80"
+#    command:
+#      - "--api=true"
+#      - "--api.insecure=true"
+#      - "--api.dashboard=true"
+#      - "--log.level=DEBUG"
+#      - "--providers.docker=true"
+#      - "--providers.docker.exposedbydefault=false"
+#      - "--providers.file.filename=/dynamic_config.yml"
+#      - "--entrypoints.websecure.address=:443"
+#      - "--entryPoints.metrics.address=:8082"
+#      - "--metrics.prometheus.entryPoint=metrics"
+#      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+#      # TESTING
+#      - "--certificatesresolvers.myresolver.acme.email=$EMAIL"
+#      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+#    volumes:
+#      - "./traefik/letsencrypt:/letsencrypt"
+#      - "./traefik/config/dynamic_config.yml:/dynamic_config.yml"
+#      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+#    networks:
+#      - monitor-net
+#    labels:
+#      - "traefik.enable=true"
