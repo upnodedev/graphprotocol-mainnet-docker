@@ -5,3 +5,6 @@
 .env
 offchain-subgraphs
 compose-agent.yml
+
+indexer-agent-configs-3
+indexer-agent-configs-4
