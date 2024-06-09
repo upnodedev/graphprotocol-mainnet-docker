@@ -68,6 +68,8 @@ services:
     networks:
       - monitor-net
     logging: *default-logging
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 
 ######################################################################################
@@ -112,6 +114,8 @@ services:
       - 8040
     networks:
       - monitor-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 
 ######################################################################################
