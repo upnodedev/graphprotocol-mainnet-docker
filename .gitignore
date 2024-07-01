@@ -8,3 +8,5 @@ compose-agent.yml
 
 indexer-agent-configs-3
 indexer-agent-configs-4
+
+postgres-socket
