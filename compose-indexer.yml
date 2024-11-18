@@ -19,51 +19,7 @@ volumes:
         o: 'bind'
         device: '/mnt/sdd/graph-data/${VOLUME_ID:-80}/postgres2_data'
 
-#x-indexer-environment-mainnet: &indexer-environment-mainnet
-#  INDEXER_INDEXER__INDEXER_ADDRESS: ${STAKING_WALLET_ADDRESS_MAINNET}
-#  INDEXER_INDEXER__OPERATOR_MNEMONIC: ${OPERATOR_SEED_PHRASE_MAINNET}
-#  INDEXER_METRICS__PORT: 7300
-#  INDEXER_DATABASE__POSTGRES_URL: "postgres://${AGENT_DB_USER}:${AGENT_DB_PASS}@${AGENT_DB_HOST}:5432/${AGENT_DB_NAME}"
-#  INDEXER_GRAPH_NODE__QUERY_URL: "http://query-node-0:8000"
-#  INDEXER_GRAPH_NODE__STATUS_URL: "http://index-node-0:8030/graphql"
-
-#  # Subgraphs - Network Configuration
-#  INDEXER_SUBGRAPHS__NETWORK__QUERY_URL: ${INDEXER_SERVICE_NETWORK_SUBGRAPH_ENDPOINT_MAINNET:-https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-arbitrum-sepolia}
-#  # INDEXER_SUBGRAPHS__NETWORK__QUERY_AUTH_TOKEN: ${FREE_QUERY_AUTH_TOKEN}
-#  INDEXER_SUBGRAPHS__NETWORK__DEPLOYMENT_ID: ${NETWORK_SUBGRAPH_DEPLOYMENT_MAINNET}
-#  INDEXER_SUBGRAPHS__NETWORK__SYNCING_INTERVAL_SECS: ${NETWORK_SYNCING_INTERVAL_SECS:-60}
-#  INDEXER_SUBGRAPHS__NETWORK__RECENTLY_CLOSED_ALLOCATION_BUFFER_SECS: ${RECENTLY_CLOSED_ALLOCATION_BUFFER_SECS:-3600}
-
-#  # Subgraphs - Escrow Configuration
-#  INDEXER_SUBGRAPHS__ESCROW__QUERY_URL: ${NETWORK_ESCROW_ENDPOINT}
-#  # INDEXER_SUBGRAPHS__ESCROW__QUERY_AUTH_TOKEN: ${FREE_QUERY_AUTH_TOKEN}
-#  INDEXER_SUBGRAPHS__ESCROW__DEPLOYMENT_ID: ${NETWORK_ESCROW_DEPLOYMENT}
-#  INDEXER_SUBGRAPHS__ESCROW__SYNCING_INTERVAL_SECS: ${NETWORK_SYNCING_INTERVAL_SECS:-60}
-
-#  # Blockchain Configuration
-#  INDEXER_BLOCKCHAIN__CHAIN_ID: ${INDEXER_CHAIN_ID_MAINNET:-1}
-#  INDEXER_BLOCKCHAIN__RECEIPTS_VERIFIER_ADDRESS: ${INDEXER_RECEIPTS_VERIFIER_ADDRESS_MAINNET:-0x33f9E93266ce0E108fc85DdE2f71dab555A0F05a}
-
-#  # Service Configuration
-#  INDEXER_SERVICE__HOST_AND_PORT: "0.0.0.0:7600"
-#  INDEXER_SERVICE__URL_PREFIX: "/"
-#  INDEXER_SERVICE__SERVE_NETWORK_SUBGRAPH: ${INDEXER_SERVE_NETWORK_SUBGRAPH:-false}
-#  INDEXER_SERVICE__SERVE_ESCROW_SUBGRAPH: ${INDEXER_SERVE_ESCROW_SUBGRAPH:-false}
-#  # INDEXER_SERVICE__SERVE_AUTH_TOKEN: ${FREE_QUERY_AUTH_TOKEN}
-#  # INDEXER_SERVICE__FREE_QUERY_AUTH_TOKEN: ${FREE_QUERY_AUTH_TOKEN}
-
-#  # TAP Configuration
-#  INDEXER_SERVICE__TAP__MAX_RECEIPT_VALUE_GRT: "0.001"
-#  INDEXER_TAP__MAX_AMOUNT_WILLING_TO_LOSE_GRT: "20"
-#  INDEXER_TAP__RAV_REQUEST__TRIGGER_VALUE_DIVISOR: "10"
-#  INDEXER_TAP__RAV_REQUEST__TIMESTAMP_BUFFER_SECS: "60"
-#  INDEXER_TAP__RAV_REQUEST__REQUEST_TIMEOUT_SECS: "5"
-#  INDEXER_TAP__RAV_REQUEST__MAX_RECEIPTS_PER_REQUEST: "10000"
-
-#  # TAP Sender Aggregator Endpoints
-#  INDEXER_TAP__SENDER_AGGREGATOR_ENDPOINTS__0xDDE4cfFd3D9052A9cb618fC05a1Cd02be1f2F467: "https://tap-aggregator.network.thegraph.com"
-
-x-indexer-environment-arbi: &indexer-environment-arbi
+x-indexer-environment: &indexer-environment
   INDEXER_INDEXER__INDEXER_ADDRESS: ${STAKING_WALLET_ADDRESS_ARBI}
   INDEXER_INDEXER__OPERATOR_MNEMONIC: ${OPERATOR_SEED_PHRASE_ARBI}
   INDEXER_METRICS__PORT: 7300
@@ -72,7 +28,7 @@ x-indexer-environment-arbi: &indexer-environment-arbi
   INDEXER_GRAPH_NODE__STATUS_URL: "http://index-node-0:8030/graphql"
 
   # Subgraphs - Network Configuration
-  INDEXER_SUBGRAPHS__NETWORK__QUERY_URL: ${INDEXER_SERVICE_NETWORK_SUBGRAPH_ENDPOINT_ARBI:-https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-arbitrum-sepolia}
+  INDEXER_SUBGRAPHS__NETWORK__QUERY_URL: ${INDEXER_SERVICE_NETWORK_SUBGRAPH_ENDPOINT_ARBI}
   # INDEXER_SUBGRAPHS__NETWORK__QUERY_AUTH_TOKEN: ${FREE_QUERY_AUTH_TOKEN}
   INDEXER_SUBGRAPHS__NETWORK__DEPLOYMENT_ID: ${NETWORK_SUBGRAPH_DEPLOYMENT_ARBI}
   INDEXER_SUBGRAPHS__NETWORK__SYNCING_INTERVAL_SECS: ${NETWORK_SYNCING_INTERVAL_SECS:-60}
@@ -85,8 +41,8 @@ x-indexer-environment-arbi: &indexer-environment-arbi
   INDEXER_SUBGRAPHS__ESCROW__SYNCING_INTERVAL_SECS: ${NETWORK_SYNCING_INTERVAL_SECS:-60}
 
   # Blockchain Configuration
-  INDEXER_BLOCKCHAIN__CHAIN_ID: ${INDEXER_CHAIN_ID_ARBI:-1}
-  INDEXER_BLOCKCHAIN__RECEIPTS_VERIFIER_ADDRESS: ${INDEXER_RECEIPTS_VERIFIER_ADDRESS_ARBI:-0x33f9E93266ce0E108fc85DdE2f71dab555A0F05a}
+  INDEXER_BLOCKCHAIN__CHAIN_ID: ${INDEXER_CHAIN_ID:-42161}
+  INDEXER_BLOCKCHAIN__RECEIPTS_VERIFIER_ADDRESS: ${INDEXER_RECEIPTS_VERIFIER_ADDRESS:-0x33f9E93266ce0E108fc85DdE2f71dab555A0F05a}
 
   # Service Configuration
   INDEXER_SERVICE__HOST_AND_PORT: "0.0.0.0:7600"
@@ -136,7 +92,7 @@ services:
 ######################################################################################
 
   indexer-agent:
-    image: ${INDEXER_AGENT_VERSION:-ghcr.io/graphprotocol/indexer-agent:v0.20.22}
+    image: ${INDEXER_AGENT_VERSION:-ghcr.io/graphprotocol/indexer-agent:v0.21.6-2}
     # container_name: indexer-agent
     depends_on:
       - postgres-agent
@@ -166,7 +122,7 @@ services:
       INDEXER_AGENT_GRAPH_NODE_ADMIN_ENDPOINT: http://index-node-0:8020
       INDEXER_AGENT_PUBLIC_INDEXER_URL: 'https://${INDEX_HOST_MAINNET}/'
       INDEXER_AGENT_INDEXER_GEO_COORDINATES: ${GEO_COORDINATES:-60.16952 24.93545}
-      INDEXER_AGENT_NETWORK_SUBGRAPH_ENDPOINT: ${INDEXER_AGENT_NETWORK_SUBGRAPH_ENDPOINT_MAINNET:-https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-mainnet}
+      INDEXER_AGENT_NETWORK_SUBGRAPH_ENDPOINT: ${INDEXER_AGENT_NETWORK_SUBGRAPH_ENDPOINT_MAINNET}
       INDEXER_AGENT_NETWORK_SUBGRAPH_DEPLOYMENT: ${NETWORK_SUBGRAPH_DEPLOYMENT}
       INDEXER_AGENT_EPOCH_SUBGRAPH_ENDPOINT: ${INDEXER_AGENT_EPOCH_SUBGRAPH_ENDPOINT_MAINNET:-https://api.thegraph.com/subgraphs/name/graphprotocol/mainnet-epoch-block-oracle}
       INDEXER_AGENT_POSTGRES_HOST: ${AGENT_DB_HOST:-postgres-agent}
@@ -186,80 +142,17 @@ services:
     restart: unless-stopped
     logging: *default-logging
 
-#############################################################################################
-#####################         INDEXER SERVICE CONTAINER MAINNET       #######################
-#############################################################################################
-
-  indexer-service-mainnet:
-    image: ${INDEXER_SERVICE_VERSION_MAINNET:-ghcr.io/graphprotocol/indexer-service:v0.20.22}
-    # container_name: indexer-service-mainnet
-    depends_on:
-      - postgres2
-    environment:
-      INDEXER_SERVICE_MNEMONIC: ${OPERATOR_SEED_PHRASE_MAINNET}
-      INDEXER_SERVICE_INDEXER_ADDRESS: ${STAKING_WALLET_ADDRESS_MAINNET}
-      INDEXER_SERVICE_PORT: 7600
-      INDEXER_SERVICE_ETHEREUM_NETWORK: mainnet
-      INDEXER_SERVICE_ETHEREUM: ${TXN_RPC_MAINNET}
-      INDEXER_SERVICE_GRAPH_NODE_QUERY_ENDPOINT: http://query-node-0:8000
-      INDEXER_SERVICE_GRAPH_NODE_STATUS_ENDPOINT: http://index-node-0:8030/graphql
-      INDEXER_SERVICE_NETWORK_SUBGRAPH_ENDPOINT: ${INDEXER_SERVICE_NETWORK_SUBGRAPH_ENDPOINT_MAINNET:-https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-mainnet}
-      INDEXER_SERVICE_NETWORK_SUBGRAPH_DEPLOYMENT: ${NETWORK_SUBGRAPH_DEPLOYMENT_MAINNET}
-      INDEXER_SERVICE_POSTGRES_HOST: postgres2
-      INDEXER_SERVICE_POSTGRES_USERNAME: ${DB_USER:-graph-node}
-      INDEXER_SERVICE_POSTGRES_PASSWORD: ${DB_PASS:-db-password}
-      INDEXER_SERVICE_POSTGRES_DATABASE: ${AGENT_DB_NAME:-indexer-agent}
-      INDEXER_SERVICE_CLIENT_SIGNER_ADDRESS: "0x982D10c56b8BBbD6e09048F5c5f01b43C65D5aE0"
-    expose:
-      - 7300
-      - 7600
-    networks:
-      - monitor-net
-      - traefik_proxy
-    restart: unless-stopped
-    logging: *default-logging
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=traefik_proxy"
-      - "traefik.http.services.indexer-service-mainnet-${VOLUME_ID:-80}.loadbalancer.server.port=7600"
-      - "traefik.http.routers.indexer-service-mainnet-${VOLUME_ID:-80}.entrypoints=web"
-      #- "traefik.http.routers.indexer-service-mainnet-${VOLUME_ID:-80}.tls.certresolver=myresolver"
-      - "traefik.http.routers.indexer-service-mainnet-${VOLUME_ID:-80}.rule=Host(`$INDEX_HOST_MAINNET`)"
-
-#  indexer-service-mainnet:
-#    image: ${INDEXER_SERVICE_VERSION_MAINNET:-ghcr.io/graphprotocol/indexer-service-rs:1.2.1}
-#    #container_name: indexer-service-mainnet
-#    depends_on:
-#      - postgres-agent
-#    environment:
-#      RUST_LOG: ${INDEXER_SERVICE_LOG_LEVEL_MAINNET:-DEBUG}
-#      <<: *indexer-environment-mainnet
-#    expose:
-#      - 7300
-#      - 7600
-#    networks:
-#      - monitor-net
-#      - traefik-proxy
-#    restart: unless-stopped
-#    labels:
-#      - "traefik.enable=true"
-#      - "traefik.docker.network=traefik_proxy"
-#      - "traefik.http.services.indexer-service-mainnet-${VOLUME_ID:-80}.loadbalancer.server.port=7600"
-#      - "traefik.http.routers.indexer-service-mainnet-${VOLUME_ID:-80}.entrypoints=web"
-#      #- "traefik.http.routers.indexer-service-mainnet-${VOLUME_ID:-80}.tls.certresolver=myresolver"
-#      - "traefik.http.routers.indexer-service-mainnet-${VOLUME_ID:-80}.rule=Host(`$INDEX_HOST_MAINNET`)"
-
 ##########################################################################################
 #####################         INDEXER SERVICE CONTAINER ARBI       #######################
 ##########################################################################################
   indexer-service-arbi:
-    image: ${INDEXER_SERVICE_VERSION_ARBI:-ghcr.io/graphprotocol/indexer-service-rs:1.2.1}
+    image: ${INDEXER_SERVICE_VERSION_ARBI:-ghcr.io/graphprotocol/indexer-service-rs:1.3.2}
     #container_name: indexer-service-arbi
     depends_on:
       - postgres-agent
     environment:
       RUST_LOG: ${INDEXER_SERVICE_LOG_LEVEL_ARBI:-DEBUG}
-      <<: *indexer-environment-arbi
+      <<: *indexer-environment
     expose:
       - 7300
       - 7600
@@ -279,13 +172,13 @@ services:
 ######################         INDEXER TAP CONTAINER        ##########################
 ######################################################################################
   indexer-tap:
-    image: ${INDEXER_TAP_VERSION:-ghcr.io/graphprotocol/indexer-tap-agent:1.4.1}
+    image: ${INDEXER_TAP_VERSION:-ghcr.io/graphprotocol/indexer-tap-agent:1.7.2}
     container_name: indexer-tap
     depends_on:
       - postgres-agent
     environment:
       RUST_LOG: ${TAP_AGENT_LOG_LEVEL:-DEBUG}
-      <<: *indexer-environment-arbi
+      <<: *indexer-environment
     networks:
       - monitor-net
     restart: unless-stopped
