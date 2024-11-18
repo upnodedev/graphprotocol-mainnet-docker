@@ -10,4 +10,3 @@ grep -q 'INDEXER_AGENT_MULTINETWORK_MODE=true' .env && sed -i -E '/geoCoordinate
 
 docker-compose -f compose-optional.yml up -d --build $@
 
-grep -q "^INDEXER_AGENT_MULTINETWORK_MODE=false$" .env && docker kill indexer-service-arbi
