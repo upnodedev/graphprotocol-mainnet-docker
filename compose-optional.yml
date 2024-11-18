@@ -12,37 +12,41 @@ networks:
   monitor-net:
     driver: bridge
 
+volumes:
+    subgraph-radio_data: {}
+
 services:
   ######################################################################################
   #####################           SUBGRAPH RADIO CONTAINER            ##################
   ######################################################################################
 
   subgraph-radio:
-    image: ghcr.io/graphops/subgraph-radio:0.1
+    image: ghcr.io/graphops/subgraph-radio:1.0.6
     container_name: subgraph-radio
     expose:
       - 3010
       - 3012
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       GRAPHCAST_NETWORK: ${GRAPHCAST_NETWORK:-mainnet}
-      REGISTRY_SUBGRAPH: ${REGISTRY_SUBGRAPH:-https://api.thegraph.com/subgraphs/name/hopeyen/graphcast-registry-mainnet}
-      NETWORK_SUBGRAPH: ${NETWORK_SUBGRAPH:-https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-mainnet}
-      MNEMONIC: ${OPERATOR_SEED_PHRASE_MAINNET}
+      REGISTRY_SUBGRAPH: ${REGISTRY_SUBGRAPH_ENDPOINT}
+      NETWORK_SUBGRAPH: ${NETWORK_SUBGRAPH_ENDPOINT}
+      MNEMONIC: ${OPERATOR_SEED_PHRASE}
       GRAPH_NODE_STATUS_ENDPOINT: ${GRAPH_NODE_STATUS_ENDPOINT:-http://index-node-0:8030/graphql}
       RUST_LOG: ${RUST_LOG:-warn,hyper=warn,graphcast_sdk=info,subgraph_radio=info}
-      INDEXER_ADDRESS: ${STAKING_WALLET_ADDRESS_MAINNET}
+      INDEXER_ADDRESS: ${STAKING_WALLET_ADDRESS}
       METRICS_HOST: ${METRICS_HOST:-0.0.0.0}
       METRICS_PORT: ${METRICS_PORT:-3010}
       SERVER_PORT: ${SERVER_PORT:-3012}
       ID_VALIDATION: ${ID_VALIDATION:-indexer}
       COVERAGE: ${COVERAGE:-comprehensive}
-      PERSISTENCE_FILE_PATH: ${PERSISTENCE_FILE_PATH:-./state.json}
+      SQLITE_FILE_PATH: ${SQLITE_FILE_PATH:-/data/state.sqlite}
+    volumes:
+      - subgraph-radio_data:/data
     networks:
       - monitor-net
     logging: *default-logging
+
 
   ######################################################################################
   #####################           POIFIER CONTAINER              #######################
@@ -56,7 +60,7 @@ services:
       - "--graph-node-status-endpoint=http://index-node-0:8030/graphql"
       - "--mnemonic=${OPERATOR_SEED_PHRASE}"
       - "--indexer-address=${STAKING_WALLET_ADDRESS}"
-      - "--indexer-agent-epoch-subgraph-endpoint=${INDEXER_AGENT_EPOCH_SUBGRAPH_ENDPOINT:-https://api.thegraph.com/subgraphs/name/graphprotocol/mainnet-epoch-block-oracle}"
+      - "--indexer-agent-epoch-subgraph-endpoint=${INDEXER_AGENT_EPOCH_SUBGRAPH_ENDPOINT:-https://api.thegraph.com/subgraphs/name/graphprotocol/arbitrum-epoch-block-oracle}"
     tty: true
     networks:
       - monitor-net
