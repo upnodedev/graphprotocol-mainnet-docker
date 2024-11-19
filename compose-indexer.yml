@@ -139,6 +139,8 @@ services:
       #INDEXER_AGENT_POI_DISPUTABLE_EPOCHS: 100
     networks:
       - monitor-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     logging: *default-logging
 
