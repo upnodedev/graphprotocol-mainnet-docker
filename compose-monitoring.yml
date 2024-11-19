@@ -24,6 +24,7 @@ volumes:
         type: 'none'
         o: 'bind'
         device: '/mnt/sdd/graph-data/${VOLUME_ID:-80}/grafana_data'
+    loki_data: {}
 
 
 services:
