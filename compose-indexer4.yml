@@ -171,7 +171,7 @@ services:
 ######################################################################################
   indexer-tap:
     image: ${INDEXER_TAP_VERSION:-ghcr.io/graphprotocol/indexer-tap-agent:1.7.2}
-    container_name: indexer-tap
+    #container_name: indexer-tap
     depends_on:
       - postgres-agent
     environment:
