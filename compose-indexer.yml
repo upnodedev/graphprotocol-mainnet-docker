@@ -160,6 +160,8 @@ services:
       - monitor-net
       - traefik_proxy
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik_proxy"
@@ -182,6 +184,8 @@ services:
     networks:
       - monitor-net
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 
 ######################################################################################
