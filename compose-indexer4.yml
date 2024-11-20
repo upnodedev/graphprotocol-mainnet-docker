@@ -136,6 +136,8 @@ services:
       INDEXER_AGENT_TAP_SUBGRAPH_ENDPOINT: ${NETWORK_ESCROW_ENDPOINT:-https://api.thegraph.com/subgraphs/name/graphprotocol/tap-escrow-subgraph}
     networks:
       - monitor-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     logging: *default-logging
 
@@ -157,6 +159,8 @@ services:
     networks:
       - monitor-net
       - traefik_proxy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
@@ -179,6 +183,8 @@ services:
       <<: *indexer-environment-4
     networks:
       - monitor-net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
 
 
