@@ -1,12 +1,27 @@
+global:
+  resolve_timeout: 1m
+  pagerduty_url: 'https://events.pagerduty.com/v2/enqueue'
+
 route:
-    receiver: 'slack'
-    group_by: ['...']
+  group_wait: 10s
+  group_interval: 30s
+  receiver: 'telegram'
+  routes:
+    - receiver: pagerduty
+      continue: true
+    - receiver: telegram
+      continue: true
 
 receivers:
-    - name: 'slack'
-      slack_configs:
-          - send_resolved: true
-            text: "{{ .CommonAnnotations.description }}"
-            username: 'Prometheus'
-            channel: '#<channel-name>'
-            api_url: 'https://hooks.slack.com/services/<webhook-id>'
+  - name: pagerduty
+    pagerduty_configs:
+    - service_key: <pagerduty_token>
+      send_resolved: true
+  - name: telegram
+    telegram_configs:
+    - bot_token: <telegram_bot_token>
+      api_url: 'https://api.telegram.org'
+      chat_id: <telegram_chat_id>
+      parse_mode: ''
+
+
