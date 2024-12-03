@@ -152,10 +152,21 @@ groups:
 - name: tap
   rules:
     - alert: no_reciepts
-      expr: rate(tap_receipts_received_total[1h]) == 0
+      expr: sum(rate(tap_receipts_received_total[1h])) == 0
       for: 30m
       labels:
         severity: critical
       annotations:
         summary: "no tap reciepts"
         description: "indexer has stopped receiving tap reciepts for 1 hour"
+
+- name: queries
+  rules:
+    - alert: no_queries_executed
+      expr: sum(rate(query_execution_time_count[1h])) == 0
+      for: 30m
+      labels:
+        severity: critical
+      annotations:
+        summary: "no queries executed"
+        description: "query node has not executed any queries for 1 hour"
