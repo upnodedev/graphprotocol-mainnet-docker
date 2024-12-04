@@ -1,11 +1,3 @@
-version: "2.1"
-
-x-logging: &default-logging
-  options:
-    max-file: "1"
-    compress: "false"
-  driver: local
-
 networks:
   traefik_proxy:
     external: true
@@ -45,7 +37,6 @@ services:
       - subgraph-radio_data:/data
     networks:
       - monitor-net
-    logging: *default-logging
 
 
   ######################################################################################
@@ -86,7 +77,6 @@ services:
     networks:
       - monitor-net
       - traefik_proxy
-    logging: *default-logging
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik_proxy"

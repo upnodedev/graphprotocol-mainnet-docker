@@ -1,10 +1,3 @@
-x-logging:
-  &default-logging
-  options:
-    max-file: '1'
-    compress: 'false'
-  driver: local
-
 networks:
   traefik_proxy:
     external: true
@@ -25,7 +18,6 @@ volumes:
         o: 'bind'
         device: '/mnt/sdd/graph-data/${VOLUME_ID:-80}/grafana_data'
     loki_data: {}
-
 
 services:
 
@@ -99,10 +91,6 @@ services:
       - 9090
     networks:
       - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
-    logging: *default-logging
-
 
 
 ######################################################################################
@@ -124,9 +112,6 @@ services:
       - 9093
     networks:
       - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
-    logging: *default-logging
 
 
 
@@ -153,9 +138,6 @@ services:
       - 9100
     networks:
       - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
-    logging: *default-logging
 
 
 
@@ -181,7 +163,6 @@ services:
       - monitor-net
     labels:
       org.label-schema.group: "monitoring"
-    logging: *default-logging
 
 
 
@@ -213,7 +194,6 @@ services:
     networks:
       - monitor-net
       - traefik_proxy
-    logging: *default-logging
     labels:
       - "org.label-schema.group=monitoring"
       - "traefik.enable=true"
@@ -237,9 +217,6 @@ services:
       - 9091
     networks:
       - monitor-net
-    labels:
-      org.label-schema.group: "monitoring"
-    logging: *default-logging
 
 
 ######################################################################################
