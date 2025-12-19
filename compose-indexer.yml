@@ -36,6 +36,8 @@ x-indexer-environment: &indexer-environment
   # Blockchain Configuration
   INDEXER_BLOCKCHAIN__CHAIN_ID: ${INDEXER_CHAIN_ID:-42161}
   INDEXER_BLOCKCHAIN__RECEIPTS_VERIFIER_ADDRESS: ${INDEXER_RECEIPTS_VERIFIER_ADDRESS:-0x33f9E93266ce0E108fc85DdE2f71dab555A0F05a}
+  INDEXER_BLOCKCHAIN__RECEIPTS_VERIFIER_ADDRESS_V2: ${INDEXER_RECEIPTS_VERIFIER_ADDRESS_V2:-0x8f69F5C07477Ac46FBc491B1E6D91E2bb0111A9e}
+  INDEXER_BLOCKCHAIN__SUBGRAPH_SERVICE: ${INDEXER_RECEIPTS_SUBGRAPH_SERVICE:-0xb2Bb92d0DE618878E438b55D5846cfecD9301105}
 
   # Service Configuration
   INDEXER_SERVICE__HOST_AND_PORT: "0.0.0.0:7600"
@@ -44,6 +46,9 @@ x-indexer-environment: &indexer-environment
   INDEXER_SERVICE__SERVE_ESCROW_SUBGRAPH: ${INDEXER_SERVE_ESCROW_SUBGRAPH:-false}
   # INDEXER_SERVICE__SERVE_AUTH_TOKEN: ${FREE_QUERY_AUTH_TOKEN}
   # INDEXER_SERVICE__FREE_QUERY_AUTH_TOKEN: ${FREE_QUERY_AUTH_TOKEN}
+
+  # Horizon
+  INDERXER_HORIZON__ENABLED: true
 
   # TAP Configuration
   INDEXER_SERVICE__TAP__MAX_RECEIPT_VALUE_GRT: "0.001"
@@ -68,7 +73,7 @@ services:
       dockerfile: Dockerfile
       args:
         INDEXER_AGENT: http://indexer-agent:8000/
-        INDEXER_CLI_VERSION: ${INDEXER_CLI_VERSION:-ghcr.io/graphprotocol/indexer-cli:v0.21.6-2}
+        INDEXER_CLI_VERSION: ${INDEXER_CLI_VERSION:-ghcr.io/graphprotocol/indexer-cli:v0.25.5}
     restart: unless-stopped
     environment:
       GEO_COORDINATES: ${GEO_COORDINATES:-69.42069 69.42069}
@@ -84,7 +89,7 @@ services:
 ######################################################################################
 
   indexer-agent:
-    image: ${INDEXER_AGENT_VERSION:-ghcr.io/graphprotocol/indexer-agent:v0.21.6-2}
+    image: ${INDEXER_AGENT_VERSION:-ghcr.io/graphprotocol/indexer-agent:v0.25.5}
     # container_name: indexer-agent
     depends_on:
       - postgres-agent
@@ -139,7 +144,7 @@ services:
 #####################         INDEXER SERVICE CONTAINER       ############################
 ##########################################################################################
   indexer-service:
-    image: ${INDEXER_SERVICE_VERSION:-ghcr.io/graphprotocol/indexer-service-rs:1.3.2}
+    image: ${INDEXER_SERVICE_VERSION:-ghcr.io/graphprotocol/indexer-service-rs:v1.8.0}
     #container_name: indexer-service
     depends_on:
       - postgres-agent
@@ -167,7 +172,7 @@ services:
 ######################         INDEXER TAP CONTAINER        ##########################
 ######################################################################################
   indexer-tap:
-    image: ${INDEXER_TAP_VERSION:-ghcr.io/graphprotocol/indexer-tap-agent:1.7.2}
+    image: ${INDEXER_TAP_VERSION:-ghcr.io/graphprotocol/indexer-tap-agent:v1.12.2}
     #container_name: indexer-tap
     depends_on:
       - postgres-agent
