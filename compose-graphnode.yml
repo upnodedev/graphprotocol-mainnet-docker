@@ -35,7 +35,7 @@ services:
       postgres_user: ${GRAPH_NODE_DB_USER:-graph-node}
       postgres_pass: ${GRAPH_NODE_DB_PASS:-db-password}
       postgres_db: ${GRAPH_NODE_DB_NAME:-graph-node}
-      ipfs: '${IPFS_ENDPOINT:-https://ipfs.network.thegraph.com/ipfs/}'
+      ipfs: '${IPFS_ENDPOINT:-https://ipfs.thegraph.com}'
       node_role: index-node
       node_id: index_node_0
       BLOCK_INGESTOR: index_node_0
@@ -87,7 +87,7 @@ services:
       postgres_user: ${GRAPH_NODE_DB_USER:-graph-node}
       postgres_pass: ${GRAPH_NODE_DB_PASS:-db-password}
       postgres_db: ${GRAPH_NODE_DB_NAME:-graph-node}
-      ipfs: '${IPFS_ENDPOINT:-https://ipfs.network.thegraph.com/ipfs/}'
+      ipfs: '${IPFS_ENDPOINT:-https://ipfs.thegraph.com}'
       node_role: query-node
       node_id: query_node_0
       RUST_LOG: INFO
