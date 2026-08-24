@@ -73,7 +73,7 @@ services:
       dockerfile: Dockerfile
       args:
         INDEXER_AGENT: http://indexer-agent:8000/
-        INDEXER_CLI_VERSION: ${INDEXER_CLI_VERSION:-ghcr.io/graphprotocol/indexer-cli:v0.25.5}
+        INDEXER_CLI_VERSION: ${INDEXER_CLI_VERSION:-ghcr.io/graphprotocol/indexer-cli:v0.25.8}
     restart: unless-stopped
     environment:
       GEO_COORDINATES: ${GEO_COORDINATES:-69.42069 69.42069}
@@ -89,7 +89,7 @@ services:
 ######################################################################################
 
   indexer-agent:
-    image: ${INDEXER_AGENT_VERSION:-ghcr.io/graphprotocol/indexer-agent:v0.25.5}
+    image: ${INDEXER_AGENT_VERSION:-ghcr.io/graphprotocol/indexer-agent:v0.25.8}
     # container_name: indexer-agent
     depends_on:
       - postgres-agent
@@ -146,7 +146,7 @@ services:
 #####################         INDEXER SERVICE CONTAINER       ############################
 ##########################################################################################
   indexer-service:
-    image: ${INDEXER_SERVICE_VERSION:-ghcr.io/graphprotocol/indexer-service-rs:v1.8.0}
+    image: ${INDEXER_SERVICE_VERSION:-ghcr.io/graphprotocol/indexer-service-rs:v2.2.1}
     #container_name: indexer-service
     depends_on:
       - postgres-agent
