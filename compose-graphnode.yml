@@ -58,6 +58,8 @@ services:
       GRAPH_ENTITY_CACHE_SIZE: 1000000
       GRAPH_STORE_BATCH_WORKERS: 10
       GRAPH_MAX_BLOCKING_THREADS: 2048
+      GRAPH_STORE_DISABLE_CALL_CACHE: "true"
+      GRAPH_ETHEREUM_CLEANUP_BLOCKS: "true"
     restart: unless-stopped
     expose:
       - 8001
