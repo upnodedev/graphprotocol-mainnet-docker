@@ -123,6 +123,7 @@ services:
 
   postgres:
     image: postgres:13.10
+    shm_size: 2gb
     # container_name: postgres
     command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements"]
     restart: unless-stopped
